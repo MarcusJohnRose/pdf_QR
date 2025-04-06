@@ -1,4 +1,5 @@
 import mimetypes
+import os
 
 from fastapi import APIRouter, UploadFile, File, HTTPException, Query
 from fastapi.responses import FileResponse
@@ -29,11 +30,11 @@ def upload_pdf(file: UploadFile = File(...)):
         job_id = str(uuid.uuid4())
         Job.create(db, job_id)
 
-    input_path = UPLOAD_DIR / f"{job_id}.pdf"
+    input_path = os.path.join(UPLOAD_DIR ,f"{job_id}.pdf")
     with SessionLocal() as db:
         Job.update_input_path(db, job_id=job_id, input_path=str(input_path))
 
-    output_path = OUTPUT_DIR / f"{job_id}_processed.pdf"
+    output_path = os.path.join(OUTPUT_DIR ,f"{job_id}_processed.pdf")
 
     with open(input_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
@@ -79,7 +80,7 @@ def retry_job(job_id: str):
 
         job.status = "retrying"
         input_path = job.input_path
-        output_path = OUTPUT_DIR / f"{job_id}_processed.pdf"
+        output_path = os.path.join(OUTPUT_DIR , f"{job_id}_processed.pdf")
         db.commit()
 
     threading.Thread(target=process_pdf, args=(input_path, output_path, job_id)).start()
