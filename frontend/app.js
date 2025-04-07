@@ -15,6 +15,7 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
   const statusDiv = document.getElementById("status");
   const downloadLink = document.getElementById("downloadLink");
   const autoDownload = document.getElementById("autoDownload").checked;
+  const autoPrint = document.getElementById("autoPrint");
 
   if (!fileInput.files.length) {
     statusDiv.textContent = "Please select a PDF file first.";
@@ -54,6 +55,25 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
         if (autoDownload) {
           autodownloader(downloadLink)
         }
+        if (autoPrint.checked) {
+          const iframe = document.createElement("iframe");
+          iframe.style.display = "none";
+          iframe.src = `/preview/${jobId}`;
+
+          document.body.appendChild(iframe);
+
+          iframe.onload = () => {
+          setTimeout(() => {
+          try {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+          } catch (e) {
+            console.error("Auto print failed:", e);
+          }
+          }, 1000); // Give it a sec to fully render
+          };
+      }
+
       } else if (statusData.status === "failed") {
         clearInterval(interval);
         statusDiv.textContent = "❌ Processing failed.";
