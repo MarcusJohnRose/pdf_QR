@@ -86,3 +86,17 @@ def retry_job(job_id: str):
     threading.Thread(target=process_pdf, args=(input_path, output_path, job_id)).start()
 
     return {"message": f"Retrying job {job_id}"}
+
+@router.get("/preview/{job_id}")
+def preview_pdf(job_id: str):
+    with SessionLocal() as db:
+        job = Job.get_job(db, job_id)
+        if not job or job["status"] != "completed":
+            raise HTTPException(status_code=404, detail="Job not completed or not found")
+
+        return FileResponse(
+            job["output_path"],
+            media_type='application/pdf',
+            filename= f"{job_id}_processed.pdf",
+            headers={"Content-Disposition": "inline; filename=printable.pdf"}
+        )
