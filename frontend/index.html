@@ -11,22 +11,33 @@
 </a>
 
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
-  <div class="bg-white shadow-xl p-8 rounded-xl w-full max-w-md">
-    <h1 class="text-2xl font-bold mb-4">Upload PDF to Process</h1>
-    <input type="file" id="fileInput" class="mb-4 w-full border p-2" accept="application/pdf" />
-    <button id="uploadBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Upload</button>
-<label class="flex items-center mt-4">
-  <input type="checkbox" id="autoDownload" class="mr-2">
-  <span>Auto download when ready</span>
-</label>
-<label class="flex items-center mt-4">
-  <input type="checkbox" id="autoPrint" class="form-checkbox text-blue-500">
-  <span class="ml-2 text-sm text-gray-700">Auto Print</span>
-</label>
+
+<div class="bg-white shadow-xl p-8 rounded-xl w-full max-w-md">
+<h1 class="text-2xl font-bold mb-4 text-center">Upload PDF to Process</h1>
+    <div id="dropZone" class="border-2 border-dashed border-gray-400 rounded p-8 text-center">
+  <p>Drag and drop your PDF here</p>
+  <input type="file" id="fileInput" class="hidden" accept="application/pdf" />
+  <button onclick="document.getElementById('fileInput').click()" class="mt-2 px-4 py-2 bg-blue-600 text-white rounded">Or select a file</button>
+    </div>
+
+<div class="flex justify-center space-x-8 mt-4">
+  <label class="flex items-center space-x-2">
+    <input type="checkbox" id="autoDownload" class="form-checkbox text-blue-600">
+    <span>Auto download</span>
+  </label>
+  <label class="flex items-center space-x-2">
+    <input type="checkbox" id="autoPrint" class="form-checkbox text-blue-600">
+    <span>Auto print</span>
+  </label>
+</div>
 
 
-    <div id="status" class="mt-4 text-sm text-gray-600"></div>
-    <a id="downloadLink" class="mt-2 text-blue-600 underline hidden" download>Download Processed PDF</a>
-  </div>
+<div id="status" class="mt-4 text-sm text-gray-600"></div>
+
+<div class="flex space-x-4 mt-2">
+  <a id="downloadLink" class="text-blue-600 underline hidden" download>Download Processed PDF</a>
+  <a id="printLink" href="#" class="text-blue-600 underline hidden">Print PDF</a>
+</div>
+</div>
 </body>
 </html>
