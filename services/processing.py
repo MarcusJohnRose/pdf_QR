@@ -6,17 +6,20 @@ from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 from models.database import SessionLocal
 from models.models import Job
+from services.settings import Settings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 def process_page(doc, page_num, job_id):
+    orderMarker = Settings.get_setting_value("qr_code_marker", default="#")
+
     try:
         page = doc.load_page(page_num)
         text = page.get_text("text")
 
         for line in text.split("\n"):
-            if "#" in line:
-                qr_img = qrcode.make(line.split("#")[1].strip())
+            if orderMarker in line:
+                qr_img = qrcode.make(line.split(orderMarker)[1].strip())
                 buffer = BytesIO()
                 qr_img.save(buffer, format="PNG")
                 buffer.seek(0)
