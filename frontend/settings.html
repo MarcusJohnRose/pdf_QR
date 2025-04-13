@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>App Settings</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-10 font-sans">
+  <a href="/" class="inline-flex items-center mb-4 text-blue-600 hover:underline">
+    ← Back
+  </a>
+  <div class="max-w-xl mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-2xl font-bold mb-4">Application Settings</h1>
+    <form id="settingsForm" class="space-y-4"></form>
+<button onclick="saveSettings()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Save Settings</button>
+    <p id="saveMsg" class="text-sm text-green-600 mt-2 hidden">✅ Settings saved!</p>
+  </div>
+
+  <script>
+    async function loadSettings() {
+      const res = await fetch("/settings");
+      const settings = await res.json();
+
+      const form = document.getElementById("settingsForm");
+      form.innerHTML = "";
+
+      settings.forEach(setting => {
+        originalSettings[setting.key] = setting.value;
+        const div = document.createElement("div");
+        div.innerHTML = `
+          <label class="block font-medium">${setting.key}</label>
+          <input type="text" class="w-full p-2 border rounded" name="${setting.key}" value="${setting.value}">
+        `;
+        form.appendChild(div);
+      });
+    }
+
+  async function saveSettings() {
+  const inputs = document.querySelectorAll("#settingsForm input");
+
+  for (const input of inputs) {
+    console.log(input)
+    const key = input.name;
+    const newValue = input.value;
+    const oldValue = originalSettings[key];
+
+    if (newValue !== oldValue) {
+      console.log(key)
+      // Only send update for changed settings
+      await fetch(`/settings/${key}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key, value: newValue })
+      });
+    }
+  }
+
+  alert("Settings updated!");
+  loadSettings(); // Refresh with updated values
+}
+let originalSettings = {};
+loadSettings();
+  </script>
+</body>
+</html>
