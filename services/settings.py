@@ -10,8 +10,7 @@ from datetime import datetime
 
 class Settings:
     DEFAULTS = {
-        "qr_code_marker": "#",
-        "qr_position": "top-center",
+        "qr_code_marker": "companyName-Location#"
     }
 
     @staticmethod
