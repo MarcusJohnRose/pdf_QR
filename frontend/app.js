@@ -1,11 +1,11 @@
-  function autodownloader(downloadUrl) {
-    const link = document.createElement("a");
-    link.href = downloadUrl;
-    link.download = "processed.pdf";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
+function autodownloader(downloadUrl) {
+  const link = document.createElement("a");
+  link.href = downloadUrl;
+  link.download = "processed.pdf";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
 
 function triggerPrint() {
   const jobId = sessionStorage.getItem("lastJobId");
@@ -29,69 +29,68 @@ function triggerPrint() {
   };
 }
 
-  async function uploadPDF(file) {
-    const statusDiv = document.getElementById("status");
-    const downloadLink = document.getElementById("downloadLink");
-    const printLink = document.getElementById("printLink");
-    const autoPrint = document.getElementById("autoPrint");
-    const autoDownload = document.getElementById("autoDownload").checked;
+async function uploadPDF(file) {
+  const statusDiv = document.getElementById("status");
+  const downloadLink = document.getElementById("downloadLink");
+  const printLink = document.getElementById("printLink");
+  const autoPrint = document.getElementById("autoPrint");
+  const autoDownload = document.getElementById("autoDownload").checked;
 
-    const formData = new FormData();
-    formData.append("file", file);
+  const formData = new FormData();
+  formData.append("file", file);
+  setStatus("Uploading...");
 
-    statusDiv.textContent = "Uploading...";
-    downloadLink.classList.add("hidden");
-    printLink.classList.add("hidden");
-
-
-    try {
-      const res = await fetch("/upload/", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-      const jobId = data.job_id;
-      sessionStorage.setItem("lastJobId", jobId);
-      statusDiv.textContent = `Processing started. Job ID: ${jobId}`;
-
-      const interval = setInterval(async () => {
-        const statusRes = await fetch(`/status/${jobId}`);
-        const statusData = await statusRes.json();
-
-        if (statusData.status === "completed") {
-          clearInterval(interval);
-          statusDiv.textContent = "✅ Processing complete!";
-          const downloadUrl = `/download/${jobId}`;
-          downloadLink.href = downloadUrl;
-          downloadLink.classList.remove("hidden");
-          downloadLink.textContent = "Download PDF";
+  downloadLink.classList.add("hidden");
+  printLink.classList.add("hidden");
 
 
-          // Show the print link
-          const printLink = document.getElementById("printLink");
-          printLink.classList.remove("hidden");
-          printLink.onclick = () => triggerPrint(jobId);
-          if (autoDownload) {
-            autodownloader(downloadUrl);
-          }
+  try {
+    const res = await fetch("/upload/", {
+      method: "POST",
+      body: formData,
+    });
 
-          if (autoPrint.checked) {
-            triggerPrint(jobId);
-          }
+    const data = await res.json();
+    const jobId = data.job_id;
+    sessionStorage.setItem("lastJobId", jobId);
+    setStatus("Processing...");
 
-        } else if (statusData.status === "failed") {
-          clearInterval(interval);
-          statusDiv.textContent = "❌ Processing failed.";
-        } else {
-          statusDiv.textContent = `⏳ Still processing...`;
+    const interval = setInterval(async () => {
+    const statusRes = await fetch(`/status/${jobId}`);
+    const statusData = await statusRes.json();
+
+      if (statusData.status === "completed") {
+        clearInterval(interval);
+        statusDiv.textContent = "✅ Processing complete!";
+        const downloadUrl = `/download/${jobId}`;
+        downloadLink.href = downloadUrl;
+
+        downloadLink.classList.remove("hidden");
+        downloadLink.textContent = "Download PDF";
+
+        // Show the print link
+        const printLink = document.getElementById("printLink");
+        printLink.classList.remove("hidden");
+        printLink.onclick = () => triggerPrint(jobId);
+        if (autoDownload) {
+          autodownloader(downloadUrl);
         }
-      }, 1500);
-    } catch (err) {
-      console.error(err);
-      statusDiv.textContent = "Error uploading file.";
-    }
+        if (autoPrint.checked) {
+          triggerPrint(jobId);
+        }
+        clearStatusAnimation()
+      } else if (statusData.status === "failed") {
+        clearInterval(interval);
+        statusDiv.textContent = "❌ Processing failed.";
+      } else {
+        setStatus("⏳ Still processing...");
+      }
+    }, 1500);
+  } catch (err) {
+    console.error(err);
+    statusDiv.textContent = "Error uploading file.";
   }
+}
 
   // Drag & Drop
   const dropZone = document.getElementById("dropZone");
@@ -123,3 +122,28 @@ function triggerPrint() {
       uploadPDF(file);
     }
   });
+
+function setStatus(text) {
+  const statusDiv = document.getElementById("status");
+  const statusZone = document.getElementById("StatusZone");
+  const dropZone = document.getElementById("dropZone");
+  dropZone.classList.add("hidden")
+  statusDiv.innerHTML = ""; // Clear previous content
+  statusZone.classList.remove("hidden");
+  [...text].forEach((char, i) => {
+    const span = document.createElement("span");
+    span.textContent = char;
+    span.classList.add("status-animate");
+    span.style.animationDelay = `${i * 0.05}s`; // Stagger animation
+    statusDiv.appendChild(span);
+  });
+}
+
+function clearStatusAnimation() {
+  const statusDiv = document.getElementById("status");
+  statusDiv.classList.remove("status-animate");
+  const statusZone = document.getElementById("StatusZone");
+  statusZone.classList.add("hidden");
+  const dropZone = document.getElementById("dropZone");
+  dropZone.classList.remove("hidden")
+}
