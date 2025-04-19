@@ -24,7 +24,7 @@ def upload_pdf(file: UploadFile = File(...)):
     # Check if file type is PDF
     mime_type, _ = mimetypes.guess_type(file.filename)
     if mime_type != "application/pdf":
-        raise HTTPException(status_code=400, detail="Invalid file type. Only PDF files are allowed.")
+        raise HTTPException(status_code=415, detail="Invalid file type. Only PDF files are allowed.")
 
     with SessionLocal() as db:
         job_id = str(uuid.uuid4())
