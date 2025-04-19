@@ -29,6 +29,8 @@ function triggerPrint() {
   };
 }
 
+
+
 async function uploadPDF(file) {
   const statusDiv = document.getElementById("status");
   const downloadLink = document.getElementById("downloadLink");
