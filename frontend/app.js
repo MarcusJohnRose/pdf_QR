@@ -50,6 +50,11 @@ async function uploadPDF(file) {
       body: formData,
     });
 
+    if (!res.ok) {
+      const error = await res.json();
+      clearStatusAnimation();
+      throw new Error(error.detail || "Upload failed");
+    }
     const data = await res.json();
     const jobId = data.job_id;
     sessionStorage.setItem("lastJobId", jobId);
@@ -87,8 +92,17 @@ async function uploadPDF(file) {
       }
     }, 1500);
   } catch (err) {
-    console.error(err);
-    statusDiv.textContent = "Error uploading file.";
+  console.error(err);
+  const errorDiv = document.getElementById("errorNotification");
+  const errorMessage = document.getElementById("errorMessage");
+
+  errorMessage.textContent = `❌ ${err.message}`;
+  errorDiv.classList.remove("hidden");
+
+  // Auto-hide after 5 seconds
+  setTimeout(() => {
+    errorDiv.classList.add("hidden");
+  }, 5000);
   }
 }
 
